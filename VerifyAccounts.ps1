@@ -2,6 +2,9 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 
+#-----------------------------------------------------------
+# FORM VALIDAR SENHA
+#-----------------------------------------------------------
 function Show-ValidatePasswordForm {
     param($DomainDefault)
 
@@ -75,15 +78,92 @@ function Show-ValidatePasswordForm {
     $form.ShowDialog()
 }
 
+#-----------------------------------------------------------
+# FORM ALTERAR SENHA TA0
+#-----------------------------------------------------------
+function Show-ChangePasswordForm {
+    param($DomainDefault)
+
+    $form = New-Object System.Windows.Forms.Form
+    $form.Text = "Alterar Senha TA0"
+    $form.Size = New-Object System.Drawing.Size(400,250)
+    $form.StartPosition = "CenterParent"
+
+    $lblUser = New-Object System.Windows.Forms.Label
+    $lblUser.Text = "User:"
+    $lblUser.Location = '20,20'
+    $form.Controls.Add($lblUser)
+
+    $txtUser = New-Object System.Windows.Forms.TextBox
+    $txtUser.Location = '150,18'
+    $txtUser.Size = '200,20'
+    $form.Controls.Add($txtUser)
+
+    $lblOldPass = New-Object System.Windows.Forms.Label
+    $lblOldPass.Text = "Old password:"
+    $lblOldPass.Location = '20,60'
+    $form.Controls.Add($lblOldPass)
+
+    $txtOldPass = New-Object System.Windows.Forms.TextBox
+    $txtOldPass.Location = '150,58'
+    $txtOldPass.Size = '200,20'
+    $txtOldPass.UseSystemPasswordChar = $true
+    $form.Controls.Add($txtOldPass)
+
+    $lblNewPass = New-Object System.Windows.Forms.Label
+    $lblNewPass.Text = "New password:"
+    $lblNewPass.Location = '20,100'
+    $form.Controls.Add($lblNewPass)
+
+    $txtNewPass = New-Object System.Windows.Forms.TextBox
+    $txtNewPass.Location = '150,98'
+    $txtNewPass.Size = '200,20'
+    $txtNewPass.UseSystemPasswordChar = $true
+    $form.Controls.Add($txtNewPass)
+
+    $btnConfirm = New-Object System.Windows.Forms.Button
+    $btnConfirm.Text = "Modify"
+    $btnConfirm.Location = '150,150'
+    $form.Controls.Add($btnConfirm)
+
+    $btnConfirm.Add_Click({
+        try {
+            $user = $txtUser.Text
+            $oldPass = (ConvertTo-SecureString $txtOldPass.Text -AsPlainText -Force)
+            $newPass = (ConvertTo-SecureString $txtNewPass.Text -AsPlainText -Force)
+
+            $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('Domain',$DomainDefault)
+
+            if ($ctx.ValidateCredentials($user, $txtOldPass.Text)) {
+                Set-ADAccountPassword -Identity $user -OldPassword $oldPass -NewPassword $newPass -Server $DomainDefault -ErrorAction Stop
+                [System.Windows.Forms.MessageBox]::Show("Password changed successfully!","successfully")
+                $form.Close()
+            } else {
+                [System.Windows.Forms.MessageBox]::Show("Incorrect old password","Error")
+            }
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show("Faild to changing password: $($_.Exception.Message)","Error")
+        }
+    })
+
+    $form.ShowDialog()
+}
+
+#-----------------------------------------------------------
+# FUNÇÃO STATUS
+#-----------------------------------------------------------
 function Set-Status {
     param($Label, $Text, $Color)
     $Label.Text = $Text
     $Label.ForeColor = $Color
 }
 
+#-----------------------------------------------------------
+# FORM PRINCIPAL
+#-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
-$formMain.Text = "Verify Accounts AD"
-$formMain.Size = New-Object System.Drawing.Size(720,350)
+$formMain.Text = "Verify Accounts AD - By Kevin Stone"
+$formMain.Size = New-Object System.Drawing.Size(750,350)
 $formMain.StartPosition = "CenterScreen"
 
 $lblDomain = New-Object System.Windows.Forms.Label
@@ -94,7 +174,7 @@ $formMain.Controls.Add($lblDomain)
 
 $txtDomain = New-Object System.Windows.Forms.TextBox
 $txtDomain.Location = '100,18'
-$txtDomain.Size = '350,20'
+$txtDomain.Size = '370,20'
 $txtDomain.Text = $env:USERDOMAIN
 $formMain.Controls.Add($txtDomain)
 
@@ -106,7 +186,7 @@ $formMain.Controls.Add($lblUser)
 
 $txtUser = New-Object System.Windows.Forms.TextBox
 $txtUser.Location = '100,53'
-$txtUser.Size = '350,20'
+$txtUser.Size = '370,20'
 $formMain.Controls.Add($txtUser)
 
 $btnVerify = New-Object System.Windows.Forms.Button
@@ -121,16 +201,36 @@ $btnValidatePwd.Location = '230,85'
 $btnValidatePwd.Size = '110,30'
 $formMain.Controls.Add($btnValidatePwd)
 
+# BOTÃO PARA ALTERAR SENHA
+$btnChangePass = New-Object System.Windows.Forms.Button
+$btnChangePass.Text = "Modify pwd TA0"
+$btnChangePass.Location = '360,85'
+$btnChangePass.Size = '110,30'
+$formMain.Controls.Add($btnChangePass)
+
+# Evento do botão
+$btnChangePass.Add_Click({
+    Show-ChangePasswordForm $txtDomain.Text
+})
+
+#-----------------------------------------------------------
+# CAMPOS DE RESULTADO
+#-----------------------------------------------------------
+$txtOU = New-Object System.Windows.Forms.TextBox
+$txtOU.Location = '10,280'
+$txtOU.Size = '670,20'
+$txtOU.ReadOnly = $true
+$txtOU.BackColor = 'LightBlue'
+$formMain.Controls.Add($txtOU)
+
 $lblStatusAccount   = New-Object System.Windows.Forms.Label
 $lblStatusAccount.Location = '10,130'
 $lblStatusAccount.Size = '450,20'
-# $lblStatusAccount.Visible = $false
 $formMain.Controls.Add($lblStatusAccount)
 
 $lblStatusLock = New-Object System.Windows.Forms.Label
 $lblStatusLock.Location = '10,160'
 $lblStatusLock.Size = '450,20'
-# $lblStatusAccount.Visible = $false
 $formMain.Controls.Add($lblStatusLock)
 
 $lblEmail = New-Object System.Windows.Forms.Label
@@ -148,12 +248,14 @@ $lblAccountExpiry.Location = '10,250'
 $lblAccountExpiry.Size = '450,20'
 $formMain.Controls.Add($lblAccountExpiry)
 
-# Novo ListBox para grupos (no espaço vermelho da imagem)
 $listGroups = New-Object System.Windows.Forms.ListBox
 $listGroups.Location = '480,20'
 $listGroups.Size = '200,250'
 $formMain.Controls.Add($listGroups)
 
+#-----------------------------------------------------------
+# EVENTOS
+#-----------------------------------------------------------
 $btnVerify.Add_Click({
     $lblStatusAccount.Text = ""
     $lblStatusLock.Text = ""
@@ -168,7 +270,7 @@ $btnVerify.Add_Click({
         $user = [System.DirectoryServices.AccountManagement.UserPrincipal]::FindByIdentity($ctx, $txtUser.Text)
 
         if (-not $user) {
-            [System.Windows.Forms.MessageBox]::Show("User not fount.", "Notice", 0, "Warning")
+            [System.Windows.Forms.MessageBox]::Show("User not found.", "Notice", 0, "Warning")
             return
         }
 
@@ -193,25 +295,25 @@ $btnVerify.Add_Click({
             Set-Status $lblEmail "E-mail: (não definido)" 'Gray'
         }
 
-        # Expiração da senha (90 dias corridos)
+        # Expiração da senha
         $lastPwdSet = $user.LastPasswordSet
         if ($lastPwdSet) {
             $expiry = $lastPwdSet.AddDays(90)
             $daysLeft = ($expiry - (Get-Date)).TotalDays
             if ($daysLeft -gt 0) {
-                Set-Status $lblPwdExpiry "Senha expira em $([math]::Floor($daysLeft)) dias" 'Green'
+                Set-Status $lblPwdExpiry "Password expired on $([math]::Floor($daysLeft)) days" 'Green'
             } else {
-                Set-Status $lblPwdExpiry "Senha expirada há $([math]::Abs([math]::Floor($daysLeft))) dias" 'Red'
+                Set-Status $lblPwdExpiry "Password expired $([math]::Abs([math]::Floor($daysLeft))) days" 'Red'
             }
         } else {
-            Set-Status $lblPwdExpiry "Senha nunca expira ou não calculável" 'Gray'
+            Set-Status $lblPwdExpiry "Password never expires or not calculable" 'Gray'
         }
 
         # Expiração da conta
         if ($user.AccountExpirationDate) {
-            Set-Status $lblAccountExpiry "Conta expira em: $($user.AccountExpirationDate.ToUniversalTime()) (UTC)" 'Red'
+            Set-Status $lblAccountExpiry "Account expired on: $($user.AccountExpirationDate.ToUniversalTime()) (UTC)" 'Red'
         } else {
-            Set-Status $lblAccountExpiry "Conta: Nunca expira" 'Green'
+            Set-Status $lblAccountExpiry "Account: Never expires" 'Green'
         }
 
         # Lista de grupos
@@ -220,8 +322,20 @@ $btnVerify.Add_Click({
             $listGroups.Items.Add($g.Name)
         }
 
+        # Caminho da OU
+        if ($user.DistinguishedName) {
+            $ouPath = ($user.DistinguishedName -replace '^CN=[^,]+,', '') `
+                      -replace 'OU=', '' `
+                      -replace 'DC=', '' `
+                      -replace ',', '/'
+            $ouPath = "$ouPath"
+            $txtOU.Text = $ouPath
+        } else {
+            $txtOU.Text = "OU not found"
+        }
+
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("Erro: $($_.Exception.Message)", "Erro", 0, "Error")
+        [System.Windows.Forms.MessageBox]::Show("Error: $($_.Exception.Message)", "Error", 0, "Error")
     }
 })
 
@@ -229,4 +343,7 @@ $btnValidatePwd.Add_Click({
     Show-ValidatePasswordForm $txtDomain.Text
 })
 
+#-----------------------------------------------------------
+# EXECUTA FORM PRINCIPAL
+#-----------------------------------------------------------
 [void]$formMain.ShowDialog()
