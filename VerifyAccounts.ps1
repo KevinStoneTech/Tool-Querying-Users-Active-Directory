@@ -85,7 +85,7 @@ function Show-ChangePasswordForm {
     param($DomainDefault)
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = "Alterar Senha TA0"
+    $form.Text = "Change Password"
     $form.Size = New-Object System.Drawing.Size(400,250)
     $form.StartPosition = "CenterParent"
 
@@ -163,7 +163,7 @@ function Set-Status {
 #-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
 $formMain.Text = "Verify Accounts AD - By Kevin Stone"
-$formMain.Size = New-Object System.Drawing.Size(750,350)
+$formMain.Size = New-Object System.Drawing.Size(800,350)
 $formMain.StartPosition = "CenterScreen"
 
 $lblDomain = New-Object System.Windows.Forms.Label
@@ -173,8 +173,8 @@ $lblDomain.Size = '80,20'
 $formMain.Controls.Add($lblDomain)
 
 $txtDomain = New-Object System.Windows.Forms.TextBox
-$txtDomain.Location = '100,18'
-$txtDomain.Size = '370,20'
+$txtDomain.Location = '100,20'
+$txtDomain.Size = '430,20'
 $txtDomain.Text = $env:USERDOMAIN
 $formMain.Controls.Add($txtDomain)
 
@@ -186,27 +186,46 @@ $formMain.Controls.Add($lblUser)
 
 $txtUser = New-Object System.Windows.Forms.TextBox
 $txtUser.Location = '100,53'
-$txtUser.Size = '370,20'
+$txtUser.Size = '430,20'
 $formMain.Controls.Add($txtUser)
 
 $btnVerify = New-Object System.Windows.Forms.Button
 $btnVerify.Text = "Verify User"
 $btnVerify.Location = '100,85'
-$btnVerify.Size = '110, 30'
+$btnVerify.Size = '100, 30'
 $formMain.Controls.Add($btnVerify)
 
 $btnValidatePwd = New-Object System.Windows.Forms.Button
-$btnValidatePwd.Text = "Validate Password"
-$btnValidatePwd.Location = '230,85'
-$btnValidatePwd.Size = '110,30'
+$btnValidatePwd.Text = "Check Password"
+$btnValidatePwd.Location = '210,85'
+$btnValidatePwd.Size = '100,30'
 $formMain.Controls.Add($btnValidatePwd)
 
 # BOTÃO PARA ALTERAR SENHA
 $btnChangePass = New-Object System.Windows.Forms.Button
-$btnChangePass.Text = "Modify pwd TA0"
-$btnChangePass.Location = '360,85'
-$btnChangePass.Size = '110,30'
+$btnChangePass.Text = "Reset Password"
+$btnChangePass.Location = '320,85'
+$btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
+
+# BOTÃO LIMPAR - HOME
+$btnClear = New-Object System.Windows.Forms.Button
+$btnClear.Text = "Clear"
+$btnClear.Location = '430,85'
+$btnClear.Size = '100,30'
+$formMain.Controls.Add($btnClear)
+
+# Evento do botão LIMPAR - HOME
+$btnClear.Add_Click({
+    $txtUser.Clear()
+    $lblStatusAccount.Text = ""
+    $lblStatusLock.Text = ""
+    $lblEmail.Text = ""
+    $lblPwdExpiry.Text = ""
+    $lblAccountExpiry.Text = ""
+    $listGroups.Items.Clear()
+    $txtOU.Clear()
+})
 
 # Evento do botão
 $btnChangePass.Add_Click({
@@ -218,7 +237,7 @@ $btnChangePass.Add_Click({
 #-----------------------------------------------------------
 $txtOU = New-Object System.Windows.Forms.TextBox
 $txtOU.Location = '10,280'
-$txtOU.Size = '670,20'
+$txtOU.Size = '525,20'
 $txtOU.ReadOnly = $true
 $txtOU.BackColor = 'LightBlue'
 $formMain.Controls.Add($txtOU)
@@ -249,7 +268,7 @@ $lblAccountExpiry.Size = '450,20'
 $formMain.Controls.Add($lblAccountExpiry)
 
 $listGroups = New-Object System.Windows.Forms.ListBox
-$listGroups.Location = '480,20'
+$listGroups.Location = '550,18'
 $listGroups.Size = '200,250'
 $formMain.Controls.Add($listGroups)
 
