@@ -278,6 +278,7 @@ $formMain.Controls.Add($listGroups)
 #-----------------------------------------------------------
 # EVENTOS
 #-----------------------------------------------------------
+
 $btnVerify.Add_Click({
     $lblDisplayName.Text = ""
     $lblStatusAccount.Text = ""
@@ -290,12 +291,29 @@ $btnVerify.Add_Click({
     try {
         $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
             ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
+
+        # Primeiro tenta buscar pelo sAMAccountName (login)
         $user = [System.DirectoryServices.AccountManagement.UserPrincipal]::FindByIdentity($ctx, $txtUser.Text)
 
+        # Se não achar, tenta buscar pelo e-mail ou UPN
         if (-not $user) {
-            [System.Windows.Forms.MessageBox]::Show("User not found.", "Notice", 0, "Warning")
+            $searcher = New-Object DirectoryServices.DirectorySearcher
+            $searcher.SearchRoot = "LDAP://$($txtDomain.Text)"
+            $searcher.Filter = "(&(objectClass=user)(|(mail=$($txtUser.Text))(userPrincipalName=$($txtUser.Text))))"
+            $searcher.PropertiesToLoad.Add("samaccountname") | Out-Null
+            $result = $searcher.FindOne()
+            if ($result) {
+                $sam = $result.Properties["samaccountname"][0]
+                $user = [System.DirectoryServices.AccountManagement.UserPrincipal]::FindByIdentity($ctx, $sam)
+            }
+        }
+
+        if (-not $user) {
+            [System.Windows.Forms.MessageBox]::Show("User not found (check username or email).", "Notice", 0, "Warning")
             return
         }
+# finalizou alteração aqui
+
 
         # Display Name
         if ($user.DisplayName) {
