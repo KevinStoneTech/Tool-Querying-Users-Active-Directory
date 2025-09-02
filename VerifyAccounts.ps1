@@ -299,9 +299,9 @@ $btnVerify.Add_Click({
 
         # Display Name
         if ($user.DisplayName) {
-            Set-Status $lblDisplayName "Nome completo: $($user.DisplayName)" 'Blue'
+            Set-Status $lblDisplayName "Full Name: $($user.DisplayName)" 'Blue'
         } else {
-            Set-Status $lblDisplayName "Nome completo: (não definido)" 'Gray'
+            Set-Status $lblDisplayName "Full Name: (Not Defined)" 'Gray'
         }
 
         # Conta ativa/desativada
@@ -313,16 +313,16 @@ $btnVerify.Add_Click({
 
         # Conta bloqueada
         if ($user.IsAccountLockedOut()) {
-            Set-Status $lblStatusLock "Conta Bloqueada" 'Red'
+            Set-Status $lblStatusLock "Locked Account" 'Red'
         } else {
-            Set-Status $lblStatusLock "Conta Desbloqueada" 'Green'
+            Set-Status $lblStatusLock "Unlocked Account" 'Green'
         }
 
         # Email
         if ($user.EmailAddress) {
             Set-Status $lblEmail "E-mail: $($user.EmailAddress)" 'Green'
         } else {
-            Set-Status $lblEmail "E-mail: (não definido)" 'Gray'
+            Set-Status $lblEmail "E-mail: (Not Defined)" 'Gray'
         }
 
         # Expiração da senha
