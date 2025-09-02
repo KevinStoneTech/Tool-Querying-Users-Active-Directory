@@ -79,7 +79,7 @@ function Show-ValidatePasswordForm {
 }
 
 #-----------------------------------------------------------
-# FORM ALTERAR SENHA TA0
+# FORM ALTERAR SENHA
 #-----------------------------------------------------------
 function Show-ChangePasswordForm {
     param($DomainDefault)
@@ -163,7 +163,7 @@ function Set-Status {
 #-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
 $formMain.Text = "Verify Accounts AD - By Kevin Stone"
-$formMain.Size = New-Object System.Drawing.Size(800,350)
+$formMain.Size = New-Object System.Drawing.Size(800,380)
 $formMain.StartPosition = "CenterScreen"
 
 $lblDomain = New-Object System.Windows.Forms.Label
@@ -201,23 +201,21 @@ $btnValidatePwd.Location = '210,85'
 $btnValidatePwd.Size = '100,30'
 $formMain.Controls.Add($btnValidatePwd)
 
-# BOTÃO PARA ALTERAR SENHA
 $btnChangePass = New-Object System.Windows.Forms.Button
 $btnChangePass.Text = "Reset Password"
 $btnChangePass.Location = '320,85'
 $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
 
-# BOTÃO LIMPAR - HOME
 $btnClear = New-Object System.Windows.Forms.Button
 $btnClear.Text = "Clear"
 $btnClear.Location = '430,85'
 $btnClear.Size = '100,30'
 $formMain.Controls.Add($btnClear)
 
-# Evento do botão LIMPAR - HOME
 $btnClear.Add_Click({
     $txtUser.Clear()
+    $lblDisplayName.Text = ""
     $lblStatusAccount.Text = ""
     $lblStatusLock.Text = ""
     $lblEmail.Text = ""
@@ -227,7 +225,6 @@ $btnClear.Add_Click({
     $txtOU.Clear()
 })
 
-# Evento do botão
 $btnChangePass.Add_Click({
     Show-ChangePasswordForm $txtDomain.Text
 })
@@ -236,46 +233,53 @@ $btnChangePass.Add_Click({
 # CAMPOS DE RESULTADO
 #-----------------------------------------------------------
 $txtOU = New-Object System.Windows.Forms.TextBox
-$txtOU.Location = '10,280'
+$txtOU.Location = '10,310'
 $txtOU.Size = '525,20'
 $txtOU.ReadOnly = $true
 $txtOU.BackColor = 'LightBlue'
 $formMain.Controls.Add($txtOU)
 
+# Novo campo: Display Name
+$lblDisplayName = New-Object System.Windows.Forms.Label
+$lblDisplayName.Location = '10,130'
+$lblDisplayName.Size = '450,20'
+$formMain.Controls.Add($lblDisplayName)
+
 $lblStatusAccount   = New-Object System.Windows.Forms.Label
-$lblStatusAccount.Location = '10,130'
+$lblStatusAccount.Location = '10,160'
 $lblStatusAccount.Size = '450,20'
 $formMain.Controls.Add($lblStatusAccount)
 
 $lblStatusLock = New-Object System.Windows.Forms.Label
-$lblStatusLock.Location = '10,160'
+$lblStatusLock.Location = '10,190'
 $lblStatusLock.Size = '450,20'
 $formMain.Controls.Add($lblStatusLock)
 
 $lblEmail = New-Object System.Windows.Forms.Label
-$lblEmail.Location = '10,190'
+$lblEmail.Location = '10,220'
 $lblEmail.Size = '450,20'
 $formMain.Controls.Add($lblEmail)
 
 $lblPwdExpiry = New-Object System.Windows.Forms.Label
-$lblPwdExpiry.Location = '10,220'
+$lblPwdExpiry.Location = '10,250'
 $lblPwdExpiry.Size = '450,20'
 $formMain.Controls.Add($lblPwdExpiry)
 
 $lblAccountExpiry = New-Object System.Windows.Forms.Label
-$lblAccountExpiry.Location = '10,250'
+$lblAccountExpiry.Location = '10,280'
 $lblAccountExpiry.Size = '450,20'
 $formMain.Controls.Add($lblAccountExpiry)
 
 $listGroups = New-Object System.Windows.Forms.ListBox
 $listGroups.Location = '550,18'
-$listGroups.Size = '200,250'
+$listGroups.Size = '200,280'
 $formMain.Controls.Add($listGroups)
 
 #-----------------------------------------------------------
 # EVENTOS
 #-----------------------------------------------------------
 $btnVerify.Add_Click({
+    $lblDisplayName.Text = ""
     $lblStatusAccount.Text = ""
     $lblStatusLock.Text = ""
     $lblEmail.Text = ""
@@ -293,11 +297,18 @@ $btnVerify.Add_Click({
             return
         }
 
+        # Display Name
+        if ($user.DisplayName) {
+            Set-Status $lblDisplayName "Nome completo: $($user.DisplayName)" 'Blue'
+        } else {
+            Set-Status $lblDisplayName "Nome completo: (não definido)" 'Gray'
+        }
+
         # Conta ativa/desativada
         if ($user.Enabled) {
-            Set-Status $lblStatusAccount "Conta Ativa" 'Green'
+            Set-Status $lblStatusAccount "Active Account" 'Green'
         } else {
-            Set-Status $lblStatusAccount "Conta Desativada" 'Red'
+            Set-Status $lblStatusAccount "Disabled Account" 'Red'
         }
 
         # Conta bloqueada
