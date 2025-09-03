@@ -107,7 +107,7 @@ function Show-ChangePasswordForm {
     $txtOldPass = New-Object System.Windows.Forms.TextBox
     $txtOldPass.Location = '150,58'
     $txtOldPass.Size = '200,20'
-    $txtOldPass.UseSystemPasswordChar = $true
+    $txtOldPass.UseSystemPasswordChar = $false
     $form.Controls.Add($txtOldPass)
 
     $lblNewPass = New-Object System.Windows.Forms.Label
@@ -118,7 +118,7 @@ function Show-ChangePasswordForm {
     $txtNewPass = New-Object System.Windows.Forms.TextBox
     $txtNewPass.Location = '150,98'
     $txtNewPass.Size = '200,20'
-    $txtNewPass.UseSystemPasswordChar = $true
+    $txtNewPass.UseSystemPasswordChar = $false
     $form.Controls.Add($txtNewPass)
 
     $btnConfirm = New-Object System.Windows.Forms.Button
@@ -179,7 +179,7 @@ $txtDomain.Text = $env:USERDOMAIN
 $formMain.Controls.Add($txtDomain)
 
 $lblUser = New-Object System.Windows.Forms.Label
-$lblUser.Text = "Network User:"
+$lblUser.Text = "UPN or E-mail:"
 $lblUser.Location = '10,55'
 $lblUser.Size = '80,20'
 $formMain.Controls.Add($lblUser)
@@ -207,6 +207,7 @@ $btnChangePass.Location = '320,85'
 $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
 
+
 $btnClear = New-Object System.Windows.Forms.Button
 $btnClear.Text = "Clear"
 $btnClear.Location = '430,85'
@@ -228,6 +229,15 @@ $btnClear.Add_Click({
 $btnChangePass.Add_Click({
     Show-ChangePasswordForm $txtDomain.Text
 })
+
+#-----------------------------------------------------------
+# ToolTip Bottons
+#-----------------------------------------------------------
+$tooltip = New-Object System.Windows.Forms.ToolTip
+$tooltip.SetToolTip($btnVerify, "Consultar usuário ou e-mail.")
+$tooltip.SetToolTip($btnValidatePwd, "Verifica se a senha do usuário é valida.")
+$tooltip.SetToolTip($btnChangePass, "Botão para redefinir senhas EXPIRADAS, e caso souber a antiga senha.")
+$tooltip.SetToolTip($btnClear, "Limpa todos os campos de pesquisa, com exeção do Domínio.")
 
 #-----------------------------------------------------------
 # CAMPOS DE RESULTADO
