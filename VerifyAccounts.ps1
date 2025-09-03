@@ -64,10 +64,10 @@ function Show-ValidatePasswordForm {
                 ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
             if ($ctx.ValidateCredentials($txtUser.Text, $txtPass.Text)) {
                 $lblResult.ForeColor = 'Green'
-                $lblResult.Text = "Credenciais válidas."
+                $lblResult.Text = "Valid credentials."
             } else {
                 $lblResult.ForeColor = 'Red'
-                $lblResult.Text = "Credenciais inválidas."
+                $lblResult.Text = "Invalid credentials."
             }
         } catch {
             $lblResult.ForeColor = 'Red'
@@ -163,7 +163,7 @@ function Set-Status {
 #-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
 $formMain.Text = "Verify Accounts AD - By Kevin Stone"
-$formMain.Size = New-Object System.Drawing.Size(800,380)
+$formMain.Size = New-Object System.Drawing.Size(830,380)
 $formMain.StartPosition = "CenterScreen"
 
 $lblDomain = New-Object System.Windows.Forms.Label
@@ -280,10 +280,22 @@ $lblAccountExpiry.Location = '10,280'
 $lblAccountExpiry.Size = '450,20'
 $formMain.Controls.Add($lblAccountExpiry)
 
+# -------------------
+
+# Label "Member Of:"
+$lblGroupsTitle = New-Object System.Windows.Forms.Label
+$lblGroupsTitle.Text = "Member Of:"
+$lblGroupsTitle.Location = '550,0'  # Posição acima da ListBox
+$lblGroupsTitle.Size = '200,18'
+$formMain.Controls.Add($lblGroupsTitle)
+# -------------------
+
 $listGroups = New-Object System.Windows.Forms.ListBox
 $listGroups.Location = '550,18'
-$listGroups.Size = '200,280'
+$listGroups.Size = '240,280'
 $formMain.Controls.Add($listGroups)
+
+
 
 #-----------------------------------------------------------
 # EVENTOS

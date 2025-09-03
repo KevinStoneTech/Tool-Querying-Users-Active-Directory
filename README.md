@@ -35,6 +35,10 @@ Ferramenta desenvolvida em **PowerShell com interface gráfica (Windows Forms)**
    ```powershell
    .\VerifyAccounts.ps1
    ```
+   ```exe
+   Ou executa o VerifyAccounts.exe
+   ```
+   
 
 3. Preencha os campos e utilize os botões conforme necessário.
 
