@@ -234,10 +234,10 @@ $btnChangePass.Add_Click({
 # ToolTip Bottons
 #-----------------------------------------------------------
 $tooltip = New-Object System.Windows.Forms.ToolTip
-$tooltip.SetToolTip($btnVerify, "Consultar usuário ou e-mail.")
-$tooltip.SetToolTip($btnValidatePwd, "Verifica se a senha do usuário é valida.")
-$tooltip.SetToolTip($btnChangePass, "Botão para redefinir senhas EXPIRADAS, e caso souber a antiga senha.")
-$tooltip.SetToolTip($btnClear, "Limpa todos os campos de pesquisa, com exeção do Domínio.")
+$tooltip.SetToolTip($btnVerify, "Check user or email.")
+$tooltip.SetToolTip($btnValidatePwd, "Verifies if the user's password is valid.")
+$tooltip.SetToolTip($btnChangePass, "Button to reset EXPIRED passwords, or if the old password is known.")
+$tooltip.SetToolTip($btnClear, "Clears all fields except the Domain.")
 
 #-----------------------------------------------------------
 # CAMPOS DE RESULTADO
