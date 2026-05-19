@@ -3,6 +3,35 @@ Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 
 #-----------------------------------------------------------
+# FUNÇÃO RANDOM PWD
+#-----------------------------------------------------------
+function New-RandomPassword {
+    param([int]$Length = 14)
+
+    $lower = 'abcdefghijklmnopqrstuvwxyz'
+    $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    $numbers = '0123456789'
+    $symbols = '!@#$%-&*'
+
+    $all = $lower + $upper + $numbers + $symbols
+
+    # Garantir política
+    $password = @()
+    $password += $lower[(Get-Random -Maximum $lower.Length)]
+    $password += $upper[(Get-Random -Maximum $upper.Length)]
+    $password += $numbers[(Get-Random -Maximum $numbers.Length)]
+    $password += $symbols[(Get-Random -Maximum $symbols.Length)]
+
+    # Completar o restante
+    for ($i = $password.Count; $i -lt $Length; $i++) {
+        $password += $all[(Get-Random -Maximum $all.Length)]
+    }
+
+    # Embaralhar
+    -join ($password | Get-Random -Count $password.Count)
+}
+
+#-----------------------------------------------------------
 # FORM VALIDAR SENHA
 #-----------------------------------------------------------
 function Show-ValidatePasswordForm {
@@ -35,6 +64,8 @@ function Show-ValidatePasswordForm {
     $txtUser.Location = '80,53'
     $txtUser.Size = '280,20'
     $form.Controls.Add($txtUser)
+    $txtUser.Add_TextChanged({ $txtUser.BackColor = 'White'})
+
 
     $lblPass = New-Object System.Windows.Forms.Label
     $lblPass.Text = "Password:"
@@ -47,6 +78,7 @@ function Show-ValidatePasswordForm {
     $txtPass.Size = '280,20'
     $txtPass.UseSystemPasswordChar = $false
     $form.Controls.Add($txtPass)
+    $txtPass.Add_TextChanged({ $txtPass.BackColor = 'White'})
 
     $btnValidate = New-Object System.Windows.Forms.Button
     $btnValidate.Text = "Validate"
@@ -58,8 +90,29 @@ function Show-ValidatePasswordForm {
     $lblResult.Size = '360,20'
     $form.Controls.Add($lblResult)
 
+
     $btnValidate.Add_Click({
         try {
+            # -------------------------------------------------------
+            # VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+            # -------------------------------------------------------
+            if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
+                $txtUser.BackColor = 'LightPink'
+                [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
+                $txtUser.Focus()
+                return
+            } else {
+                $txtUser.BackColor = 'White'
+            }
+
+            if ([string]::IsNullOrWhiteSpace($txtPass.Text)) {
+                $txtPass.BackColor = 'LightPink'
+                [System.Windows.Forms.MessageBox]::Show("Password is required.", "Validation")
+                $txtPass.Focus()
+                return
+            } else {
+                $txtPass.BackColor = 'White'
+            }
             $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
                 ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
             if ($ctx.ValidateCredentials($txtUser.Text, $txtPass.Text)) {
@@ -86,7 +139,7 @@ function Show-ChangePasswordForm {
 
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Change Password"
-    $form.Size = New-Object System.Drawing.Size(400,250)
+    $form.Size = New-Object System.Drawing.Size(450,250)
     $form.StartPosition = "CenterParent"
 
     $lblUser = New-Object System.Windows.Forms.Label
@@ -98,6 +151,7 @@ function Show-ChangePasswordForm {
     $txtUser.Location = '150,18'
     $txtUser.Size = '200,20'
     $form.Controls.Add($txtUser)
+    $txtUser.Add_TextChanged({ $txtUser.BackColor = 'White'})######
 
     $lblOldPass = New-Object System.Windows.Forms.Label
     $lblOldPass.Text = "Old password:"
@@ -107,8 +161,9 @@ function Show-ChangePasswordForm {
     $txtOldPass = New-Object System.Windows.Forms.TextBox
     $txtOldPass.Location = '150,58'
     $txtOldPass.Size = '200,20'
-    $txtOldPass.UseSystemPasswordChar = $false
+    $txtOldPass.UseSystemPasswordChar = $true
     $form.Controls.Add($txtOldPass)
+    $txtOldPass.Add_TextChanged({ $txtOldPass.BackColor = 'White'})#####
 
     $lblNewPass = New-Object System.Windows.Forms.Label
     $lblNewPass.Text = "New password:"
@@ -118,16 +173,84 @@ function Show-ChangePasswordForm {
     $txtNewPass = New-Object System.Windows.Forms.TextBox
     $txtNewPass.Location = '150,98'
     $txtNewPass.Size = '200,20'
-    $txtNewPass.UseSystemPasswordChar = $false
+    $txtNewPass.UseSystemPasswordChar = $true
     $form.Controls.Add($txtNewPass)
+    $txtNewPass.Add_TextChanged({ $txtNewPass.BackColor = 'White'})#####
+    
+    $btnShowPass = New-Object System.Windows.Forms.Button
+    $btnShowPass.Text = "Show"
+    $btnShowPass.Location = '355,96'
+    $btnShowPass.Size = '50,23'
+    $form.Controls.Add($btnShowPass)
+
+    $btnShowPass.Add_Click({
+        if ($txtNewPass.UseSystemPasswordChar) {
+            $txtNewPass.UseSystemPasswordChar = $false
+            $btnShowPass.Text = "Hide"
+        } else {
+            $txtNewPass.UseSystemPasswordChar = $true
+            $btnShowPass.Text = "Show"
+        }
+    })
+
+    $btnShowPass.Add_Click({
+        if ($txtOldPass.UseSystemPasswordChar) {
+            $txtOldPass.UseSystemPasswordChar = $false
+            $btnShowPass.Text = "Hide"
+        } else {
+            $txtOldPass.UseSystemPasswordChar = $true
+            $btnShowPass.Text = "Show"
+        }
+    })
+    
+    $btnGenPass = New-Object System.Windows.Forms.Button
+    $btnGenPass.Text = "Generate"
+    $btnGenPass.Location = '250,150'
+    $btnGenPass.Size = '100,30'
+    $form.Controls.Add($btnGenPass)
+
+    $btnGenPass.Add_Click({
+    $txtNewPass.Text = New-RandomPassword -Length 14
+    })
 
     $btnConfirm = New-Object System.Windows.Forms.Button
     $btnConfirm.Text = "Modify"
     $btnConfirm.Location = '150,150'
+    $btnConfirm.Size = '100,30'
     $form.Controls.Add($btnConfirm)
 
     $btnConfirm.Add_Click({
         try {
+# ------------------------------------         
+# VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+# ------------------------------------
+        if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
+            $txtUser.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
+            $txtUser.Focus()
+            return
+        } else {
+            $txtUser.BackColor = 'White'
+        }
+
+        if ([string]::IsNullOrWhiteSpace($txtOldPass.Text)) {
+            $txtOldPass.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("Old password is required.", "Validation")
+            $txtOldPass.Focus()
+            return
+        } else {
+            $txtOldPass.BackColor = 'White'
+        }
+
+        if ([string]::IsNullOrWhiteSpace($txtNewPass.Text)) {
+            $txtNewPass.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("New password is required.", "Validation")
+            $txtNewPass.Focus()
+            return
+        } else {
+            $txtNewPass.BackColor = 'White'
+        }
+
             $user = $txtUser.Text
             $oldPass = (ConvertTo-SecureString $txtOldPass.Text -AsPlainText -Force)
             $newPass = (ConvertTo-SecureString $txtNewPass.Text -AsPlainText -Force)
@@ -149,6 +272,7 @@ function Show-ChangePasswordForm {
     $form.ShowDialog()
 }
 
+
 #-----------------------------------------------------------
 # FUNÇÃO STATUS
 #-----------------------------------------------------------
@@ -162,7 +286,7 @@ function Set-Status {
 # FORM PRINCIPAL
 #-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
-$formMain.Text = "Verify Accounts AD - By Kevin Stone"
+$formMain.Text = "Accounts Verify AD - Kevin Stone"
 $formMain.Size = New-Object System.Drawing.Size(830,380)
 $formMain.StartPosition = "CenterScreen"
 
@@ -177,6 +301,7 @@ $txtDomain.Location = '100,20'
 $txtDomain.Size = '430,20'
 $txtDomain.Text = $env:USERDOMAIN
 $formMain.Controls.Add($txtDomain)
+$txtDomain.Add_TextChanged({ $txtDomain.BackColor = 'White'})
 
 $lblUser = New-Object System.Windows.Forms.Label
 $lblUser.Text = "UPN or E-mail:"
@@ -188,21 +313,22 @@ $txtUser = New-Object System.Windows.Forms.TextBox
 $txtUser.Location = '100,53'
 $txtUser.Size = '430,20'
 $formMain.Controls.Add($txtUser)
+$txtUser.Add_TextChanged({ $txtUser.BackColor = 'White'})
 
 $btnVerify = New-Object System.Windows.Forms.Button
-$btnVerify.Text = "Verify User"
+$btnVerify.Text = "User Verify"
 $btnVerify.Location = '100,85'
 $btnVerify.Size = '100, 30'
 $formMain.Controls.Add($btnVerify)
 
 $btnValidatePwd = New-Object System.Windows.Forms.Button
-$btnValidatePwd.Text = "Check Password"
+$btnValidatePwd.Text = "Password Check"
 $btnValidatePwd.Location = '210,85'
 $btnValidatePwd.Size = '100,30'
 $formMain.Controls.Add($btnValidatePwd)
 
 $btnChangePass = New-Object System.Windows.Forms.Button
-$btnChangePass.Text = "Reset Password"
+$btnChangePass.Text = "Password Reset"
 $btnChangePass.Location = '320,85'
 $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
@@ -280,9 +406,9 @@ $lblAccountExpiry.Location = '10,280'
 $lblAccountExpiry.Size = '450,20'
 $formMain.Controls.Add($lblAccountExpiry)
 
-# -------------------
-
+#-----------------------------------------------------------
 # Label "Member Of:"
+#-----------------------------------------------------------
 $lblGroupsTitle = New-Object System.Windows.Forms.Label
 $lblGroupsTitle.Text = "Member Of:"
 $lblGroupsTitle.Location = '550,0'  # Posição acima da ListBox
@@ -294,7 +420,6 @@ $listGroups = New-Object System.Windows.Forms.ListBox
 $listGroups.Location = '550,18'
 $listGroups.Size = '240,280'
 $formMain.Controls.Add($listGroups)
-
 
 
 #-----------------------------------------------------------
@@ -310,6 +435,28 @@ $btnVerify.Add_Click({
     $lblAccountExpiry.Text = ""
     $listGroups.Items.Clear()
 
+    #-----------------------------------------------------------
+    # VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
+    #-----------------------------------------------------------
+    if ([string]::IsNullOrWhiteSpace($txtDomain.Text)) {
+        $txtDomain.BackColor = 'LightPink'
+        [System.Windows.Forms.MessageBox]::Show("Domain is required.", "Validation")
+        $txtDomain.Focus()
+        return
+    } else {
+        $txtDomain.BackColor = 'White'
+    }
+
+    if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
+        $txtUser.BackColor = 'LightPink'
+        [System.Windows.Forms.MessageBox]::Show("User or Email is required.", "Validation")
+        $txtUser.Focus()
+        return
+    } else {
+        $txtUser.BackColor = 'White'
+    }
+
+
     try {
         $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
             ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
@@ -317,7 +464,7 @@ $btnVerify.Add_Click({
         # Primeiro tenta buscar pelo sAMAccountName (login)
         $user = [System.DirectoryServices.AccountManagement.UserPrincipal]::FindByIdentity($ctx, $txtUser.Text)
 
-        # Se não achar, tenta buscar pelo e-mail ou UPN
+        # Se não achar UPN, tenta buscar pelo e-mail
         if (-not $user) {
             $searcher = New-Object DirectoryServices.DirectorySearcher
             $searcher.SearchRoot = "LDAP://$($txtDomain.Text)"
