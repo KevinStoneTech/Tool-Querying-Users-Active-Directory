@@ -177,9 +177,24 @@ function Show-ChangePasswordForm {
     $form.Controls.Add($txtNewPass)
     $txtNewPass.Add_TextChanged({ $txtNewPass.BackColor = 'White'})#####
     
+    $btnCopyPass = New-Object System.Windows.Forms.Button
+    $btnCopyPass.Text = "Copy"
+    $btnCopyPass.Location = '355,95'
+    $btnCopyPass.Size = '50,23'
+    $form.Controls.Add($btnCopyPass)
+
+    $btnCopyPass.Add_Click({
+    if (-not [string]::IsNullOrWhiteSpace($txtNewPass.Text)) {
+        [System.Windows.Forms.Clipboard]::SetText($txtNewPass.Text)
+        [System.Windows.Forms.MessageBox]::Show("Password copied to clipboard!", "Success")
+    } else {
+        [System.Windows.Forms.MessageBox]::Show("No password to copy.", "Warning")
+    }
+})
+    
     $btnShowPass = New-Object System.Windows.Forms.Button
     $btnShowPass.Text = "Show"
-    $btnShowPass.Location = '355,96'
+    $btnShowPass.Location = '355,55'
     $btnShowPass.Size = '50,23'
     $form.Controls.Add($btnShowPass)
 
@@ -250,6 +265,15 @@ function Show-ChangePasswordForm {
         } else {
             $txtNewPass.BackColor = 'White'
         }
+        
+        # Validação de mínimo 12 caracteres
+        if ($txtNewPass.Text.Length -lt 12) {
+            $txtNewPass.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("Password must be at least 12 characters.", "Validation")
+            $txtNewPass.Focus()
+            return
+        }
+
 
             $user = $txtUser.Text
             $oldPass = (ConvertTo-SecureString $txtOldPass.Text -AsPlainText -Force)
