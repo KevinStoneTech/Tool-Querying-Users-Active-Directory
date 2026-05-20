@@ -310,7 +310,7 @@ function Set-Status {
 # FORM PRINCIPAL
 #-----------------------------------------------------------
 $formMain = New-Object System.Windows.Forms.Form
-$formMain.Text = "Accounts Verify AD - Kevin Stone"
+$formMain.Text = "Accounts Verify AD Tools"
 $formMain.Size = New-Object System.Drawing.Size(830,380)
 $formMain.StartPosition = "CenterScreen"
 
@@ -357,6 +357,19 @@ $btnChangePass.Location = '320,85'
 $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
 
+$lblFooterMain = New-Object System.Windows.Forms.Label
+$lblFooterMain.Text = "IT Local AD Tools - v2.1"
+$lblFooterMain.AutoSize = $true
+$lblFooterMain.ForeColor = 'Black'
+$lblFooterMain.Location = '620,305'
+$formMain.Controls.Add($lblFooterMain)
+
+$lblFooterSub = New-Object System.Windows.Forms.Label
+$lblFooterSub.Text = "Manaus-AM, $(Get-Date -Format yyyy)"
+$lblFooterSub.AutoSize = $true
+$lblFooterSub.ForeColor = 'Blue'
+$lblFooterSub.Location = '620,320'
+$formMain.Controls.Add($lblFooterSub)
 
 $btnClear = New-Object System.Windows.Forms.Button
 $btnClear.Text = "Clear"
