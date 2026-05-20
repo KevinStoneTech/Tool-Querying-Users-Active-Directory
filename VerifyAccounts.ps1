@@ -313,6 +313,9 @@ $formMain = New-Object System.Windows.Forms.Form
 $formMain.Text = "Accounts Verify AD Tools"
 $formMain.Size = New-Object System.Drawing.Size(830,380)
 $formMain.StartPosition = "CenterScreen"
+# $formMain.Font = New-Object System.Drawing.Font("Segoe UI",9)
+$formMain.Icon = [System.Drawing.SystemIcons]::Shield
+
 
 $lblDomain = New-Object System.Windows.Forms.Label
 $lblDomain.Text = "Domain AD:"
@@ -339,20 +342,26 @@ $txtUser.Size = '430,20'
 $formMain.Controls.Add($txtUser)
 $txtUser.Add_TextChanged({ $txtUser.BackColor = 'White'})
 
+$txtUser.Add_KeyDown({
+    if ($_.KeyCode -eq "Enter") {
+        $btnVerify.PerformClick()
+    }
+})
+
 $btnVerify = New-Object System.Windows.Forms.Button
-$btnVerify.Text = "User Verify"
+$btnVerify.Text = "Verify User"
 $btnVerify.Location = '100,85'
 $btnVerify.Size = '100, 30'
 $formMain.Controls.Add($btnVerify)
 
 $btnValidatePwd = New-Object System.Windows.Forms.Button
-$btnValidatePwd.Text = "Password Check"
+$btnValidatePwd.Text = "Validate Password"
 $btnValidatePwd.Location = '210,85'
 $btnValidatePwd.Size = '100,30'
 $formMain.Controls.Add($btnValidatePwd)
 
 $btnChangePass = New-Object System.Windows.Forms.Button
-$btnChangePass.Text = "Password Reset"
+$btnChangePass.Text = "Reset Password"
 $btnChangePass.Location = '320,85'
 $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
@@ -464,6 +473,7 @@ $formMain.Controls.Add($listGroups)
 #-----------------------------------------------------------
 
 $btnVerify.Add_Click({
+
     $lblDisplayName.Text = ""
     $lblStatusAccount.Text = ""
     $lblStatusLock.Text = ""
@@ -492,7 +502,6 @@ $btnVerify.Add_Click({
     } else {
         $txtUser.BackColor = 'White'
     }
-
 
     try {
         $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
