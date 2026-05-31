@@ -86,47 +86,71 @@ function Show-ValidatePasswordForm {
     $form.Controls.Add($btnValidate)
 
     $lblResult = New-Object System.Windows.Forms.Label
-    $lblResult.Location = '10,150'
-    $lblResult.Size = '360,20'
+    $lblResult.Location = '20,150'
+    $lblResult.Size = '340,40'
+    $lblResult.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+    $lblResult.TextAlign = 'MiddleCenter'
+    $lblResult.BorderStyle = 'FixedSingle'
+    $lblResult.BackColor = 'LightGray'
     $form.Controls.Add($lblResult)
 
+$btnValidate.Add_Click({
 
-    $btnValidate.Add_Click({
-        try {
-            # -------------------------------------------------------
-            # VALIDAÇÃO DE CAMPOS OBRIGATÓRIOS
-            # -------------------------------------------------------
-            if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
-                $txtUser.BackColor = 'LightPink'
-                [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
-                $txtUser.Focus()
-                return
-            } else {
-                $txtUser.BackColor = 'White'
-            }
-
-            if ([string]::IsNullOrWhiteSpace($txtPass.Text)) {
-                $txtPass.BackColor = 'LightPink'
-                [System.Windows.Forms.MessageBox]::Show("Password is required.", "Validation")
-                $txtPass.Focus()
-                return
-            } else {
-                $txtPass.BackColor = 'White'
-            }
-            $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
-                ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
-            if ($ctx.ValidateCredentials($txtUser.Text, $txtPass.Text)) {
-                $lblResult.ForeColor = 'Green'
-                $lblResult.Text = "Valid credentials."
-            } else {
-                $lblResult.ForeColor = 'Red'
-                $lblResult.Text = "Invalid credentials."
-            }
-        } catch {
-            $lblResult.ForeColor = 'Red'
-            $lblResult.Text = "Erro: $($_.Exception.Message)"
+    try {
+        if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
+            $txtUser.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
+            return
+        } else {
+            $txtUser.BackColor = 'White'
         }
-    })
+
+        if ([string]::IsNullOrWhiteSpace($txtPass.Text)) {
+            $txtPass.BackColor = 'LightPink'
+            [System.Windows.Forms.MessageBox]::Show("Password is required.", "Validation")
+            return
+        } else {
+            $txtPass.BackColor = 'White'
+        }
+
+        $form.Cursor = 'WaitCursor'
+
+        $lblResult.Text = "Validating credentials..."
+        $lblResult.BackColor = 'Orange'
+        $lblResult.ForeColor = 'Black'
+
+        [System.Windows.Forms.Application]::DoEvents()
+
+        # -------------------------------------------------------
+        # PROCESSAMENTO
+        # -------------------------------------------------------
+        $ctx = New-Object System.DirectoryServices.AccountManagement.PrincipalContext `
+            ([System.DirectoryServices.AccountManagement.ContextType]::Domain, $txtDomain.Text)
+
+        if ($ctx.ValidateCredentials($txtUser.Text, $txtPass.Text)) {
+
+            $lblResult.Text = "User authenticated successfully"
+            $lblResult.BackColor = '#28a745'
+            $lblResult.ForeColor = 'White'
+
+        } else {
+
+            $lblResult.Text = "Invalid username or password"
+            $lblResult.BackColor = '#dc3545'
+            $lblResult.ForeColor = 'White'
+        }
+
+    } catch {
+
+        $lblResult.Text = "Error validating credentials"
+        $lblResult.BackColor = '#dc3545'
+        $lblResult.ForeColor = 'White'
+
+    } finally {
+
+        $form.Cursor = 'Default'
+    }
+})
 
     $form.ShowDialog()
 }
