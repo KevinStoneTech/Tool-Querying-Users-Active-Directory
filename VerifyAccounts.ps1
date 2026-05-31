@@ -39,7 +39,7 @@ function Show-ValidatePasswordForm {
 
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Validate Password"
-    $form.Size = New-Object System.Drawing.Size(400,250)
+    $form.Size = New-Object System.Drawing.Size(440,250)
     $form.StartPosition = "CenterParent"
 
     $lblDomain = New-Object System.Windows.Forms.Label
@@ -76,9 +76,31 @@ function Show-ValidatePasswordForm {
     $txtPass = New-Object System.Windows.Forms.TextBox
     $txtPass.Location = '80,88'
     $txtPass.Size = '280,20'
-    $txtPass.UseSystemPasswordChar = $false
+    $txtPass.UseSystemPasswordChar = $true
     $form.Controls.Add($txtPass)
     $txtPass.Add_TextChanged({ $txtPass.BackColor = 'White'})
+
+    
+$btnShowPass = New-Object System.Windows.Forms.Button
+$btnShowPass.Text = "Show"
+$btnShowPass.Location = '365,86'
+$btnShowPass.Size = '50,23'
+$form.Controls.Add($btnShowPass)
+
+$btnShowPass.Add_Click({
+
+        if ($txtPass.UseSystemPasswordChar) {
+            # Mostra senha
+            $txtPass.UseSystemPasswordChar = $false
+            $btnShowPass.Text = "Hide"
+        }
+        else {
+            # Oculta senha
+            $txtPass.UseSystemPasswordChar = $true
+            $btnShowPass.Text = "Show"
+        }
+
+    })
 
     $btnValidate = New-Object System.Windows.Forms.Button
     $btnValidate.Text = "Validate"
