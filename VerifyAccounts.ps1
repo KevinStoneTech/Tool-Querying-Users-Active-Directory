@@ -41,6 +41,7 @@ function Show-ValidatePasswordForm {
     $form.Text = "Validate Password"
     $form.Size = New-Object System.Drawing.Size(440,250)
     $form.StartPosition = "CenterParent"
+    $form.Icon = [System.Drawing.SystemIcons]::Application
 
     $lblDomain = New-Object System.Windows.Forms.Label
     $lblDomain.Text = "Domain AD:"
@@ -187,6 +188,7 @@ function Show-ChangePasswordForm {
     $form.Text = "Change Password"
     $form.Size = New-Object System.Drawing.Size(450,250)
     $form.StartPosition = "CenterParent"
+    $form.Icon = [System.Drawing.SystemIcons]::Application
 
     $lblUser = New-Object System.Windows.Forms.Label
     $lblUser.Text = "User:"
@@ -360,7 +362,7 @@ $formMain.Text = "Accounts Verify AD Tools"
 $formMain.Size = New-Object System.Drawing.Size(830,380)
 $formMain.StartPosition = "CenterScreen"
 # $formMain.Font = New-Object System.Drawing.Font("Segoe UI",9)
-$formMain.Icon = [System.Drawing.SystemIcons]::Shield
+$formMain.Icon = [System.Drawing.SystemIcons]::Application
 
 
 $lblDomain = New-Object System.Windows.Forms.Label
@@ -654,7 +656,7 @@ $btnVerify.Add_Click({
     }
     
     } finally {
-        # ✅ SEMPRE volta o cursor
+        # Volta o cursor Defaultt
         $formMain.Cursor = [System.Windows.Forms.Cursors]::Default
     }
 
