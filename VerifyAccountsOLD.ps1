@@ -35,12 +35,14 @@ function New-RandomPassword {
 # FORM VALIDAR SENHA
 #-----------------------------------------------------------
 function Show-ValidatePasswordForm {
-    param($DomainDefault)
+    param($DomainDefault, $ParentForm)
 
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Validate Password"
     $form.Size = New-Object System.Drawing.Size(400,250)
     $form.StartPosition = "CenterParent"
+    $form.TopMost = $false
+    $form.Owner = $ParentForm
 
     $lblDomain = New-Object System.Windows.Forms.Label
     $lblDomain.Text = "Domain AD:"
@@ -98,7 +100,7 @@ function Show-ValidatePasswordForm {
             # -------------------------------------------------------
             if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
                 $txtUser.BackColor = 'LightPink'
-                [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
+                [System.Windows.Forms.MessageBox]::Show($form, "User is required.", "Validation", "OK", "Warning")
                 $txtUser.Focus()
                 return
             } else {
@@ -107,7 +109,7 @@ function Show-ValidatePasswordForm {
 
             if ([string]::IsNullOrWhiteSpace($txtPass.Text)) {
                 $txtPass.BackColor = 'LightPink'
-                [System.Windows.Forms.MessageBox]::Show("Password is required.", "Validation")
+                [System.Windows.Forms.MessageBox]::Show($form, "Password is required.", "Validation", "OK", "Warning")
                 $txtPass.Focus()
                 return
             } else {
@@ -128,19 +130,21 @@ function Show-ValidatePasswordForm {
         }
     })
 
-    $form.ShowDialog()
+    $form.ShowDialog($ParentForm)
 }
 
 #-----------------------------------------------------------
 # FORM ALTERAR SENHA
 #-----------------------------------------------------------
 function Show-ChangePasswordForm {
-    param($DomainDefault)
+    param($DomainDefault, $ParentForm)
 
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Change Password"
     $form.Size = New-Object System.Drawing.Size(450,250)
     $form.StartPosition = "CenterParent"
+    $form.TopMost = $false
+    $form.Owner = $ParentForm
 
     $lblUser = New-Object System.Windows.Forms.Label
     $lblUser.Text = "User:"
@@ -186,9 +190,9 @@ function Show-ChangePasswordForm {
     $btnCopyPass.Add_Click({
     if (-not [string]::IsNullOrWhiteSpace($txtNewPass.Text)) {
         [System.Windows.Forms.Clipboard]::SetText($txtNewPass.Text)
-        [System.Windows.Forms.MessageBox]::Show("Password copied to clipboard!", "Success", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
+        [System.Windows.Forms.MessageBox]::Show($form, "Password copied to clipboard!", "Success")
     } else {
-        [System.Windows.Forms.MessageBox]::Show("No password to copy.", "Warning")
+        [System.Windows.Forms.MessageBox]::Show($form, "No password to copy.", "Warning")
     }
 })
     
@@ -241,7 +245,7 @@ function Show-ChangePasswordForm {
 # ------------------------------------
         if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
             $txtUser.BackColor = 'LightPink'
-            [System.Windows.Forms.MessageBox]::Show("User is required.", "Validation")
+            [System.Windows.Forms.MessageBox]::Show($form, "User is required.", "Validation", "OK", "Warning")
             $txtUser.Focus()
             return
         } else {
@@ -250,7 +254,7 @@ function Show-ChangePasswordForm {
 
         if ([string]::IsNullOrWhiteSpace($txtOldPass.Text)) {
             $txtOldPass.BackColor = 'LightPink'
-            [System.Windows.Forms.MessageBox]::Show("Old password is required.", "Validation")
+            [System.Windows.Forms.MessageBox]::Show($form, "Old password is required.", "Validation", "OK", "Warning")
             $txtOldPass.Focus()
             return
         } else {
@@ -259,7 +263,7 @@ function Show-ChangePasswordForm {
 
         if ([string]::IsNullOrWhiteSpace($txtNewPass.Text)) {
             $txtNewPass.BackColor = 'LightPink'
-            [System.Windows.Forms.MessageBox]::Show("New password is required.", "Validation")
+            [System.Windows.Forms.MessageBox]::Show($form, "New password is required.", "Validation", "OK", "Warning")
             $txtNewPass.Focus()
             return
         } else {
@@ -269,7 +273,7 @@ function Show-ChangePasswordForm {
         # Validação de mínimo 12 caracteres
         if ($txtNewPass.Text.Length -lt 12) {
             $txtNewPass.BackColor = 'LightPink'
-            [System.Windows.Forms.MessageBox]::Show("Password must be at least 12 characters.", "Validation")
+            [System.Windows.Forms.MessageBox]::Show($form, "Password must be at least 12 characters.", "Validation", "OK", "Warning")
             $txtNewPass.Focus()
             return
         }
@@ -283,17 +287,17 @@ function Show-ChangePasswordForm {
 
             if ($ctx.ValidateCredentials($user, $txtOldPass.Text)) {
                 Set-ADAccountPassword -Identity $user -OldPassword $oldPass -NewPassword $newPass -Server $DomainDefault -ErrorAction Stop
-                [System.Windows.Forms.MessageBox]::Show("Password changed successfully!","successfully")
+                [System.Windows.Forms.MessageBox]::Show($form, "Password changed successfully!","successfully")
                 $form.Close()
             } else {
-                [System.Windows.Forms.MessageBox]::Show("Incorrect old password","Error")
+                [System.Windows.Forms.MessageBox]::Show($form, "Incorrect old password","Error")
             }
         } catch {
-            [System.Windows.Forms.MessageBox]::Show("Faild to changing password: $($_.Exception.Message)","Error")
+            [System.Windows.Forms.MessageBox]::Show($form, "Faild to changing password: $($_.Exception.Message)","Error")
         }
     })
 
-    $form.ShowDialog()
+    $form.ShowDialog($ParentForm)
 }
 
 
@@ -367,7 +371,7 @@ $btnChangePass.Size = '100,30'
 $formMain.Controls.Add($btnChangePass)
 
 $lblFooterMain = New-Object System.Windows.Forms.Label
-$lblFooterMain.Text = "EDAM IT Local AD Tools - v2.1"
+$lblFooterMain.Text = "IT Local AD Tools - v2.1"
 $lblFooterMain.AutoSize = $true
 $lblFooterMain.ForeColor = 'Black'
 $lblFooterMain.Location = '620,305'
@@ -399,7 +403,7 @@ $btnClear.Add_Click({
 })
 
 $btnChangePass.Add_Click({
-    Show-ChangePasswordForm $txtDomain.Text
+    Show-ChangePasswordForm $txtDomain.Text $formMain
 })
 
 #-----------------------------------------------------------
@@ -474,12 +478,6 @@ $formMain.Controls.Add($listGroups)
 
 $btnVerify.Add_Click({
 
-    # Ativa cursor de carregando
-    $formMain.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
-    [System.Windows.Forms.Application]::DoEvents()
-
-    try {
-
     $lblDisplayName.Text = ""
     $lblStatusAccount.Text = ""
     $lblStatusLock.Text = ""
@@ -493,7 +491,7 @@ $btnVerify.Add_Click({
     #-----------------------------------------------------------
     if ([string]::IsNullOrWhiteSpace($txtDomain.Text)) {
         $txtDomain.BackColor = 'LightPink'
-        [System.Windows.Forms.MessageBox]::Show("Domain is required.", "Validation")
+        [System.Windows.Forms.MessageBox]::Show($formMain, "Domain is required.", "Validation")
         $txtDomain.Focus()
         return
     } else {
@@ -502,7 +500,7 @@ $btnVerify.Add_Click({
 
     if ([string]::IsNullOrWhiteSpace($txtUser.Text)) {
         $txtUser.BackColor = 'LightPink'
-        [System.Windows.Forms.MessageBox]::Show("User or Email is required.", "Validation")
+        [System.Windows.Forms.MessageBox]::Show($formMain, "User or Email is required.", "Validation")
         $txtUser.Focus()
         return
     } else {
@@ -530,7 +528,7 @@ $btnVerify.Add_Click({
         }
 
         if (-not $user) {
-            [System.Windows.Forms.MessageBox]::Show("User not found (check username or email).", "Notice", 0, "Warning")
+            [System.Windows.Forms.MessageBox]::Show($form, "User not found (check username or email).", "Notice", 0, "Warning")
             return
         }
 # finalizou alteração aqui
@@ -604,20 +602,12 @@ $btnVerify.Add_Click({
         }
 
     } catch {
-        [System.Windows.Forms.MessageBox]::Show("Error: $($_.Exception.Message)", "Error", 0, "Error")
+        [System.Windows.Forms.MessageBox]::Show($formMain, "Error: $($_.Exception.Message)", "Error", 0, "Error")
     }
-    
-    } finally {
-        # ✅ SEMPRE volta o cursor
-        $formMain.Cursor = [System.Windows.Forms.Cursors]::Default
-    }
-
-
 })
 
-
 $btnValidatePwd.Add_Click({
-    Show-ValidatePasswordForm $txtDomain.Text
+    Show-ValidatePasswordForm $txtDomain.Text $formMain
 })
 
 #-----------------------------------------------------------
