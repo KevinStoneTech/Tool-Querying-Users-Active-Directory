@@ -463,7 +463,15 @@ $tooltip.SetToolTip($btnClear, "Clears all fields except the Domain.")
 # CAMPOS DE RESULTADO
 #-----------------------------------------------------------
 $txtOU = New-Object System.Windows.Forms.TextBox
+# $txtOU.Location = '10,310'
+
 $txtOU.Location = '10,310'
+$txtOU.BackColor = '#f1f8fb'
+$txtOU.ForeColor = '#2c3e50'
+$txtOU.BorderStyle = 'FixedSingle'
+$txtOU.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+
+
 $txtOU.Size = '525,20'
 $txtOU.ReadOnly = $true
 $txtOU.BackColor = 'LightBlue'
@@ -513,6 +521,11 @@ $formMain.Controls.Add($lblGroupsTitle)
 $listGroups = New-Object System.Windows.Forms.ListBox
 $listGroups.Location = '550,18'
 $listGroups.Size = '240,280'
+
+$listGroups.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+$listGroups.BackColor = '#ffffff'
+$listGroups.BorderStyle = 'FixedSingle'
+
 $formMain.Controls.Add($listGroups)
 
 
